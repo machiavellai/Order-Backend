@@ -6,11 +6,11 @@ const router = express.Router();
 router.post('/vendor', CreateVandor)
 
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
- 
-    res.json({ message: "Hello from Vandor"})
-    
-    })
-    
-    
-    
-    export { router as AdminRoute };
+
+    res.json({ message: "Hello from Vandor" })
+
+})
+
+
+
+export { router as AdminRoute }
