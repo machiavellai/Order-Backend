@@ -161,7 +161,11 @@ export const GetFood = async (req: Request, res: Response, next: NextFunction) =
 
     if (user) {
 
+        const foods = await Food.find({ vendorId: user._id })
 
+        if (foods !== null) {
+            return res.json(foods)
+        }
 
     }
 
