@@ -35,18 +35,52 @@ export const ValidateSignature = async (req: Request) => {
     const signature = req.get('Authorization');
     // console.log('Authorization Header:', signature); // Log the Authorization header
 
-    if (signature ) {
-        try {
-            const payload = jwt.verify(signature.split('')[1], APP_SECRET) as AuthPayload
-            // console.log('APP_SECRET:', APP_SECRET);
-            req.user = payload
 
-            return true
-        } catch (error) {
-            // console.error("Token verification failed:", error); // Log token verification errors
-            return false;
+    if (signature && signature.startsWith('Bearer ')) {
+
+        const token = signature.split(' ')[1];
+        console.log('Extracted Token:', token);  // Log the token
+
+        try {
+            // Verify the token and return the decoded user payload
+            const payload = jwt.verify(token, APP_SECRET) as AuthPayload;
+            // console.log('Decoded Payload:', payload); // Log the decoded payload
+
+            req.user = payload; // Assign the payload to req.user
+            console.log('Token payload:', payload);
+            console.log('req.user after setting in middleware :', req.user);
+            return true; // Token is valid, continue
+
+        } catch (error: any) {
+            console.log('Token verification failed:', error.message); // Log verification errors
+            return false; // Return false if token verification fails
         }
 
+    } else {
+        console.error('No Authorization header or incorrect format');
     }
+
     return false
 };
+
+
+
+
+
+
+
+
+
+// if (signature ) {
+//     try {
+//         const payload = jwt.verify(signature.split('')[1], APP_SECRET) as AuthPayload
+//         // console.log('APP_SECRET:', APP_SECRET);
+//         req.user = payload
+
+//         return true
+//     } catch (error) {
+//         // console.error("Token verification failed:", error); // Log token verification errors
+//         return false;
+//     }
+
+// }

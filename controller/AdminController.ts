@@ -11,7 +11,18 @@ export const FindVendor = async (id: string | undefined, email?: string) => {
     } else {
         return await Vendor.findById(id)
     }
+    return null
 }
+
+
+
+// if (email) {
+//     return await Vendor.findOne({ email: email });
+// } else if (id) {
+//     return await Vendor.findById(id);  // Check that this is working as expected
+// }
+// return null;  // Return null if no valid ID or email
+
 
 
 export const CreateVendor = async (req: Request, res: Response, next: NextFunction) => {

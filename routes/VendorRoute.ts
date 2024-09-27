@@ -10,7 +10,7 @@ router.post('/login', VendorLogin)
 
 
 router.get('/profile', Authenticate, GetVendorProfile)
-router.patch('/profile', UpdateVendorProfile)
+router.patch('/profile', Authenticate, UpdateVendorProfile)
 router.patch('/service', UpdateVendorService)
 
 

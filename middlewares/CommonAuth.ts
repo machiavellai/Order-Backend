@@ -16,13 +16,13 @@ export const Authenticate = async (req: Request, res: Response, next: NextFuncti
 
     // const signature = await ValidateSignature(req);
 
-    const signature = req.get('Authorization');
+    // const signature = req.get('Authorization');
     // console.log('Authorization Header in Middleware:', signature); // Log this to see if it's being passed
 
     const userPayload = await ValidateSignature(req);
 
     if (userPayload) {
-
+        console.log('User from token:', req.user);
         next()
     } else {
         return res.json({ "message": "user not Authorized " })

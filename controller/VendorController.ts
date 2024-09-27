@@ -56,6 +56,8 @@ export const GetVendorProfile = async (req: Request, res: Response, next: NextFu
 
 export const UpdateVendorProfile = async (req: Request, res: Response, next: NextFunction) => {
 
+    console.log('User from req in UpdateVendorProfile:', req.user);
+
     const { foodType, name, address, phone } = <EditVendorInputs>req.body
 
     const user = req.user;
@@ -72,7 +74,7 @@ export const UpdateVendorProfile = async (req: Request, res: Response, next: Nex
         const existingVendor = await FindVendor(user._id)
         console.log('Existing Vendor:', existingVendor); // Log the existing vendor
 
-        
+
         if (existingVendor !== null) {
             existingVendor.name = name;
             existingVendor.address = address;
@@ -80,7 +82,8 @@ export const UpdateVendorProfile = async (req: Request, res: Response, next: Nex
             existingVendor.foodType = foodType;
 
             const savedResult = await existingVendor.save()
-            console.log(savedResult);
+            console.log('Updated Vendor:', savedResult);
+            // console.log(savedResult);
             return res.json(savedResult)
         }
 
