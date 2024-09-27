@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import { EditVendorInputs, VendorLoginInputs } from '../dto';
 import { FindVendor } from './AdminController';
 import { GenerateSignature, ValidatePassword } from '../utility';
+import { CreateFoodInput } from '../dto/Food.dto';
+import { Food } from '../models/Food';
 
 
 export const VendorLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -94,10 +96,77 @@ export const UpdateVendorProfile = async (req: Request, res: Response, next: Nex
 }
 
 export const UpdateVendorService = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
 
+
+
+
+    if (user) {
+        const existingVendor = await FindVendor(user._id)
+
+
+        if (existingVendor !== null) {
+            existingVendor.serviceAvailable = !existingVendor.serviceAvailable;
+            const savedResult = await existingVendor.save();
+            return res.json(savedResult)
+        }
+
+        return res.json(existingVendor)
+    }
+
+    return res.json({ "message": "Vendor information Not Found" })
 }
 
 
+export const AddFood = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    if (user) {
+
+        const { name, description, category, foodType, readyTime, price } = <CreateFoodInput>req.body
+
+        const vendor = await FindVendor(user._id)
+        // console.log(vendor);
+
+        if (vendor !== null) {
+
+            const createdFood = await Food.create({
+                vendorId: vendor._id,
+                name: name,
+                description: description,
+                category: category,
+                foodType: foodType,
+                images: ['mock.jpg'],
+                readyTime: readyTime,
+                price: price,
+                rating: 0
+            })
+
+            vendor.foods.push(createdFood);
+            const result = await vendor.save();
+            // console.log(result);
+            return res.json(result)
+        }
+    }
+
+    return res.json({ "message": "Something went wrong with addFood" })
+}
+
+
+
+
+
+export const GetFood = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    if (user) {
+
+
+
+    }
+
+    return res.json({ "message": "Food were not FOund" })
+}
 
 
 
