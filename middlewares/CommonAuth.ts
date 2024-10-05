@@ -22,6 +22,8 @@ export const Authenticate = async (req: Request, res: Response, next: NextFuncti
     const userPayload = await ValidateSignature(req);
 
     if (userPayload) {
+
+        req.user = userPayload;
         console.log('User from token:', req.user);
         next()
     } else {

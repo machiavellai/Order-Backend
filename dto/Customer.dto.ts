@@ -12,3 +12,11 @@ export class CreateCustomerInpiuts{
     @Length(6, 12)
     password: string
 }
+
+
+
+export interface CustomerPayload{
+    _id: string;
+    email: string;
+    verified: boolean;
+}

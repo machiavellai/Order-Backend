@@ -19,7 +19,7 @@ export const ValidatePassword = async (enteredPassword: string, savedPassword: s
 
 //implementing jwt to serve as a code to all endpoints that requireauthentication
 
-export const GenerateSignature = async (payload: any) => {
+export const GenerateSignature = async (payload: AuthPayload) => {
 
     return jwt.sign(payload, APP_SECRET, { expiresIn: '90d' });
 }
@@ -44,12 +44,11 @@ export const ValidateSignature = async (req: Request) => {
         try {
             // Verify the token and return the decoded user payload
             const payload = jwt.verify(token, APP_SECRET) as AuthPayload;
-            // console.log('Decoded Payload:', payload); // Log the decoded payload
+            console.log('Decoded Payload:', payload); // Log the decoded payload
 
             req.user = payload; // Assign the payload to req.user
-            console.log('Token payload:', payload);
-            console.log('req.user after setting in middleware :', req.user);
-            return true; // Token is valid, continue
+            //
+            return payload; // Token is valid, continue
 
         } catch (error: any) {
             console.log('Token verification failed:', error.message); // Log verification errors

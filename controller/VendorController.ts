@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { EditVendorInputs, VendorLoginInputs } from '../dto';
+import { EditVendorInputs, VendorLoginInputs, VendorPayload } from '../dto';
 import { FindVendor } from './AdminController';
 import { GenerateSignature, ValidatePassword } from '../utility';
 import { CreateFoodInput } from '../dto/Food.dto';
@@ -58,11 +58,11 @@ export const GetVendorProfile = async (req: Request, res: Response, next: NextFu
 
 export const UpdateVendorProfile = async (req: Request, res: Response, next: NextFunction) => {
 
-    console.log('User from req in UpdateVendorProfile:', req.user);
+    // console.log('User from req in UpdateVendorProfile:', req.user);
 
     const { foodType, name, address, phone } = <EditVendorInputs>req.body
 
-    const user = req.user;
+    const user = req.user as VendorPayload
 
     console.log('User from req:', user);
 
