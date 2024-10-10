@@ -15,6 +15,7 @@ export const CustomerSignup = async (req: Request, res: Response, next: NextFunc
     if (inputErrors.length > 0) {
         return res.status(400).json(inputErrors)
     }
+
     const { email, phone, password } = customerInputs;
 
     const salt = await GenerateSalt();
@@ -34,20 +35,26 @@ export const CustomerSignup = async (req: Request, res: Response, next: NextFunc
         address: '',
         verified: false,
         lat: 0,
-        lng: 0
+        lng:0
     })
 
     if (result) {
 
         await onRequestOTP(otp, phone)
-
+ 
         const signature = GenerateSignature({
             _id: result._id.toString(),
             email: result.email,
             verified: result.verified
         })
 
-        return res.status(201).json({ signature: signature, verified: result.verified, email: result.email })
+        return res.status(201).json({
+            signature: signature,
+            verified: result.verified,
+            email: result.email
+        });
+
+        // return res.status(201).json({ signature: signature, verified: result.verified, email: result.email })
     }
     return res.status(400).json({ message: 'Error with Signing Up!' })
 }
