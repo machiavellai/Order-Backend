@@ -1,10 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { CustomerLogin, CustomerSignup, EditCustomerProfile, GetCustomerProfile, RequestOtp, VerifyCustomer } from '../controller';
+import { Authenticate } from '../middlewares';
 
 const router = express.Router();
 
 
-//Creare new user
+//Creare new user,
 
 router.post('/signup', CustomerSignup)
 
@@ -13,6 +14,8 @@ router.post('/signup', CustomerSignup)
 
 router.post('/login', CustomerLogin)
 
+
+router.use(Authenticate)
 
 ///verify Customer Account
 
