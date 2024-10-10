@@ -28,11 +28,7 @@ export const VendorLogin = async (req: Request, res: Response, next: NextFunctio
                 name: existingVendor.name,
                 foodType: existingVendor.foodType
             })
-            // console.log('Input Password:', password);
-            // console.log('Stored Password:', existingVendor.password);
-            // console.log('Stored Salt:', existingVendor.salt);
 
-            // console.log('Generated Signature:', signature);
             return res.json(signature)
         } else {
             return res.json({ "message": "Password is not valid" })
@@ -114,12 +110,12 @@ export const UpdateVendorCoverImage = async (req: Request, res: Response, next: 
             const images = files.map((file: Express.Multer.File) => file.filename)
 
             vendor.coverImages.push(...images)
-           
+
 
             const result = await vendor.save();
             // console.log(result);
             return res.json(result)
-        }                                               
+        }
     }
 
     return res.json({ "message": "Something went wrong with addFood" })
@@ -181,7 +177,7 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
             const result = await vendor.save();
             // console.log(result);
             return res.json(result)
-        }                                               
+        }
     }
 
     return res.json({ "message": "Something went wrong with addFood" })
@@ -193,7 +189,7 @@ export const GetFood = async (req: Request, res: Response, next: NextFunction) =
     const user = req.user;
 
     if (user) {
- 
+
         const foods = await Food.find({ vendorId: user._id })
 
         if (foods !== null) {

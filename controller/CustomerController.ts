@@ -2,9 +2,8 @@ import express, { Request, Response, NextFunction } from 'express'
 import { validate, ValidationError } from 'class-validator'
 import { plainToClass } from 'class-transformer'
 import { CreateCustomerInpiuts } from '../dto/Customer.dto'
-import { GenerateOtp, GeneratePassword, GenerateSalt, GenerateSignature, onRequestOTP } from '../utility'
+import { GenerateOtp, GenerateOtpAndStoreInRedis, GeneratePassword, GenerateSalt, GenerateSignature } from '../utility'
 import { Customer } from '../models/Customer'
-import { ObjectId } from 'mongodb';
 
 export const CustomerSignup = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -40,10 +39,10 @@ export const CustomerSignup = async (req: Request, res: Response, next: NextFunc
 
     if (result) {
 
-        await onRequestOTP(otp, phone)
+        const { otp, otpKey } = await GenerateOtpAndStoreInRedis(phone);
  
         const signature = GenerateSignature({
-            _id: result._id.toString(),
+            _id: result.id,
             email: result.email,
             verified: result.verified
         })
@@ -51,10 +50,11 @@ export const CustomerSignup = async (req: Request, res: Response, next: NextFunc
         return res.status(201).json({
             signature: signature,
             verified: result.verified,
-            email: result.email
+            email: result.email,
+            otp: otp,  // Include OTP in response
+            otpKey: otpKey
         });
 
-        // return res.status(201).json({ signature: signature, verified: result.verified, email: result.email })
     }
     return res.status(400).json({ message: 'Error with Signing Up!' })
 }
