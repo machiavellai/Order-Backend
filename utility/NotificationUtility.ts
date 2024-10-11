@@ -13,8 +13,6 @@ export const GenerateOtp = () => {
     return { otp, expiry };
 };
 
-
-
 // Function to generate OTP and store in Redis
 export const GenerateOtpAndStoreInRedis = async () => {
     // Generate OTP
