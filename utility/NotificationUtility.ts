@@ -1,7 +1,4 @@
 import { Client, } from "twilio/lib/base/BaseTwilio"
-// import { PhoneNumber } from "twilio/lib/interfaces"
-import request from 'request';
-import twilio from "twilio";
 import { redisClient } from "../services/Database";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,23 +8,21 @@ import { v4 as uuidv4 } from 'uuid';
 export const GenerateOtp = () => {
     const otp = Math.floor(100000 + Math.random() * 900000);  // Generate a 6-digit OTP
     let expiry = new Date();  // Set expiration time
-    expiry.setTime(new Date().getTime() + (30 * 60 * 1000));  // 30 minutes expiration
+    expiry.setTime(new Date().getTime() + (600 * 60 * 1000));  // 30 minutes expiration
 
     return { otp, expiry };
 };
 
-
-
 // Function to generate OTP and store in Redis
-export const GenerateOtpAndStoreInRedis = async (toPhoneNumber: string) => {
+export const GenerateOtpAndStoreInRedis = async () => {
     // Generate OTP
     const { otp, expiry } = GenerateOtp();
     
     // Create a unique key using phone number and UUID
-    const otpKey = `otp:${toPhoneNumber}:${uuidv4()}`;
+    const otpKey = `otp:$:${uuidv4()}`;
 
-    // Store OTP in Redis with expiry (in seconds)
-    await redisClient.set(otpKey, otp, {
+   
+    await redisClient.set(otpKey, otp,  {
         EX: 1800  // 30 minutes expiry time
     });
 
