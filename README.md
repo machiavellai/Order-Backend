@@ -1,7 +1,7 @@
 # Food Order Backend
 
 ### Author: Oghene Victor
-Full Stack Developer | Ventured into Backend Development
+Full Stack Developer 
 
 ## Project Overview
 
