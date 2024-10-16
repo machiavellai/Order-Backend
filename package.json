@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/src/index.js",
+    "preinstall": "npm rebuild bcrypt --build-from-source",
+     "start": "node dist/src/index.js",
     "build": "tsc -p .",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build && ls -l dist/src"
   },
   "engines": {
     "node": "20.10.0",
