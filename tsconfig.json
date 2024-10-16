@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "lib": ["DOM", "ES6","ESNext.AsyncIterable"],
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "./dist/src",
     "rootDir": "./src",
     "moduleResolution": "node",
     "esModuleInterop": true,
