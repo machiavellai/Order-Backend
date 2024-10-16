@@ -13,7 +13,6 @@ const StartServer = async () => {
 
     app.listen(PORT, () => {
         console.log(`listening on port ${PORT}`);
-
     })
 }
 
