@@ -1,5 +1,14 @@
 import express, { Request, Response, NextFunction } from 'express'
-import { addToCart, CreateOrder, CustomerLogin, CustomerSignup, DeleteFromCart, EditCustomerProfile, GetCart, GetCustomerProfile, GetOrders, GetOrdersById, RequestOtp, VerifyCustomer } from '../controller';
+import {
+    addToCart,
+    CreateOrder,
+    CustomerLogin,
+    CustomerSignup
+    , DeleteFromCart, EditCustomerProfile,
+    GetCart, GetCustomerProfile, GetOrders
+    , GetOrdersById, RequestOtp,
+    VerifyCustomer
+} from '../controller';
 import { Authenticate } from '../middlewares';
 
 const router = express.Router();
