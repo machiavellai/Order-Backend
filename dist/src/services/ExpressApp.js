@@ -24,6 +24,10 @@ exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use('/vendor', routes_1.VandorRoute);
     app.use('/Shopp', ShoppingRoute_1.ShoppingRoute);
     app.use('/customer', routes_1.CustomerRoute);
+    // Catch-all for undefined routes
+    app.get('*', (req, res) => {
+        res.status(404).send('404 Not Found');
+    });
     return app;
 });
 //# sourceMappingURL=ExpressApp.js.map

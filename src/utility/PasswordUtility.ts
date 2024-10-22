@@ -39,12 +39,12 @@ export const ValidateSignature = async (req: Request) => {
     if (signature && signature.startsWith('Bearer ')) {
 
         const token = signature.split(' ')[1];
-        console.log('Extracted Token:', token);  // Log the token
+        // console.log('Extracted Token:', token);  // Log the token
 
         try {
             // Verify the token and return the decoded user payload
             const payload = jwt.verify(token, APP_SECRET) as AuthPayload;
-            console.log('Decoded Payload:', payload); // Log the decoded payload
+            // console.log('Decoded Payload:', payload); // Log the decoded payload
 
             req.user = payload; // Assign the payload to req.user
             //

@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose'
-
-
+import { OrderDoc } from './Order';
 
 interface CustomerDoc extends Document {
     _id: mongoose.Types.ObjectId;
@@ -16,9 +15,8 @@ interface CustomerDoc extends Document {
     otp_expiry: Date
     lat: number;
     lng: number;
+    orders: [OrderDoc]
 }
-
-
 
 const CustomerSchema = new Schema({
     email: { type: String, required: true },
@@ -33,9 +31,9 @@ const CustomerSchema = new Schema({
     otp_expiry: { type: Date, required: true },
     lat: { type: Number },
     lng: { type: Number },
-    foods: [{
+    orders: [{
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'food'
+        ref: 'order'
     }]
     //restrict what is displayed
 }, {

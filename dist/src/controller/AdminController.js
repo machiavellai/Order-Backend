@@ -55,7 +55,7 @@ const CreateVendor = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         coverImages: [],
         foods: []
     });
-    // console.log(createVendor)
+    console.log(createVendor);
     return res.json(createVendor);
 });
 exports.CreateVendor = CreateVendor;
@@ -66,17 +66,6 @@ const GetVendor = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         return res.json(vendors);
     }
     return res.json({ "message": " vendors data are not available" });
-    // try {  
-    //     const vendors = await Vendor.find();  
-    //     if (vendors && vendors.length > 0) {  
-    //         return res.json(vendors);  
-    //     }  
-    //     return res.status(404).json({ "message": "Vendors data are not available" });  
-    // } catch (error) {  
-    //     // Optionally log the error for debugging  
-    //     console.error("Error fetching vendors: ", error);  
-    //     return res.status(500).json({ "message": "Internal server error" });  
-    // }    
 });
 exports.GetVendor = GetVendor;
 const GetVendorByID = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

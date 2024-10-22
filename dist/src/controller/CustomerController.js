@@ -9,12 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
+exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const Customer_dto_1 = require("../dto/Customer.dto");
 const utility_1 = require("../utility");
 const Customer_1 = require("../models/Customer");
+const models_1 = require("../models");
+const Order_1 = require("../models/Order");
 const CustomerSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const customerInputs = (0, class_transformer_1.plainToClass)(Customer_dto_1.CreateCustomerInpiuts, req.body);
     const inputErrors = yield (0, class_validator_1.validate)(customerInputs, { validationError: { target: true } });
@@ -24,8 +26,8 @@ const CustomerSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     const { email, phone, password } = customerInputs;
     const salt = yield (0, utility_1.GenerateSalt)();
     const userPassword = yield (0, utility_1.GeneratePassword)(password, salt);
-    const { expiry } = (0, utility_1.GenerateOtp)();
     const { otp, otpKey } = yield (0, utility_1.GenerateOtpAndStoreInRedis)(); // Use Redis OTP
+    const { expiry } = (0, utility_1.GenerateOtp)();
     const existingCustomer = yield Customer_1.Customer.findOne({ email: email });
     if (existingCustomer) {
         return res.status(409).json({ message: 'email already exsist' });
@@ -42,11 +44,10 @@ const CustomerSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         address: '',
         verified: false,
         lat: 0,
-        lng: 0
+        lng: 0,
+        orders: []
     });
     if (result) {
-        // const { otp, otpKey } = await GenerateOtpAndStoreInRedis(phone);
-        // console.log('Generated OTP:', otp); 
         const signature = yield (0, utility_1.GenerateSignature)({
             _id: result.id,
             email: result.email,
@@ -171,4 +172,79 @@ const EditCustomerProfile = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.EditCustomerProfile = EditCustomerProfile;
+const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    //grab current login customer
+    const customer = req.user;
+    if (customer) {
+        // create an order ID
+        const orderId = `${Math.floor(Math.random() * 89999) + 1000}`;
+        const profile = yield Customer_1.Customer.findById(customer._id);
+        console.log('Customer Profile:', profile);
+        //Grab order items from request [ { id: XX, unit : XX}]
+        const cart = req.body; // [{id: XX, unit: XX}]
+        let cartItems = Array();
+        let netAmount = 0.0;
+        //calculate order amount
+        const foods = yield models_1.Food.find().where('_id').in(cart.map(item => item._id)).exec();
+        foods.map(food => {
+            cart.map(({ _id, unit }) => {
+                if (food._id == _id) {
+                    netAmount += (food.price * unit);
+                    cartItems.push({ food, unit });
+                }
+            });
+        });
+        //create order with item description
+        if (cartItems) {
+            //create order
+            const currentOrder = yield Order_1.Order.create({
+                orderId: orderId,
+                items: cartItems,
+                totalAmount: netAmount,
+                orderDate: new Date(),
+                paidThrough: "COD",
+                paymentResponse: "",
+                orderStatus: 'waiting'
+            });
+            if (currentOrder) {
+                console.log('Before push:', profile.orders); // Log before push
+                profile.orders.push(currentOrder);
+                yield profile.save();
+                console.log('After push:', profile.orders);
+                return res.status(200).json(currentOrder);
+            }
+        }
+    }
+    return res.status(400).json({ message: "errow with Create Order" });
+});
+exports.CreateOrder = CreateOrder;
+const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    //grab current login customer
+    const customer = req.user;
+    // Log the customer object
+    // console.log('Customer from Token:', customer);
+    if (customer) {
+        // create an order ID
+        const profile = yield Customer_1.Customer.findById(customer._id).populate("orders");
+        // // Log the populated orders
+        // console.log('Order IDs:', profile.orders);
+        // console.log('Populated Orders:', profile.orders);
+        if (profile) {
+            // Manually query the Order model
+            const orders = yield Order_1.Order.find({ _id: { $in: profile.orders } });
+            // console.log('Orders Found in DB:', orders);
+            return res.status(200).json(profile.orders);
+        }
+    }
+    return res.status(400).json({ message: "No customer found" });
+});
+exports.GetOrders = GetOrders;
+const GetOrdersById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    if (orderId) {
+        const order = yield Order_1.Order.findById(orderId).populate('items.food');
+        res.status(200).json(order);
+    }
+});
+exports.GetOrdersById = GetOrdersById;
 //# sourceMappingURL=CustomerController.js.map

@@ -1,8 +1,8 @@
-import express, {Application} from 'express';
+import express, { Application } from 'express';
 import path from 'path'
 import { AdminRoute, CustomerRoute, VandorRoute } from '../routes';
-import { ShoppingRoute  } from '../routes/ShoppingRoute';
- 
+import { ShoppingRoute } from '../routes/ShoppingRoute';
+
 export default async (app: Application) => {
 
 
@@ -14,6 +14,11 @@ export default async (app: Application) => {
     app.use('/vendor', VandorRoute)
     app.use('/Shopp', ShoppingRoute)
     app.use('/customer', CustomerRoute)
+
+    // Catch-all for undefined routes
+    app.get('*', (req, res) => {
+        res.status(404).send('404 Not Found');
+    });
 
     return app;
 }

@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserLoginInpiuts = exports.EditCustomerProfileInputs = exports.CreateCustomerInpiuts = void 0;
+exports.OrderInputs = exports.UserLoginInpiuts = exports.EditCustomerProfileInputs = exports.CreateCustomerInpiuts = void 0;
 const class_validator_1 = require("class-validator");
 class CreateCustomerInpiuts {
 }
@@ -52,4 +52,12 @@ __decorate([
     (0, class_validator_1.Length)(6, 12),
     __metadata("design:type", String)
 ], UserLoginInpiuts.prototype, "password", void 0);
+class OrderInputs {
+}
+exports.OrderInputs = OrderInputs;
+// export class OrderInputs {
+//     txnId: string;
+//     amount: string;
+//     items: [CartItem];
+// }
 //# sourceMappingURL=Customer.dto.js.map

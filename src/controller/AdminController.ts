@@ -58,7 +58,7 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
         coverImages: [],
         foods: []
     })
-    // console.log(createVendor)
+    console.log(createVendor)
     return res.json(createVendor)
 
 }
@@ -75,19 +75,7 @@ export const GetVendor = async (req: Request, res: Response, next: NextFunction)
     }
 
     return res.json({ "message": " vendors data are not available" })
-    // try {  
-    //     const vendors = await Vendor.find();  
-
-    //     if (vendors && vendors.length > 0) {  
-    //         return res.json(vendors);  
-    //     }  
-
-    //     return res.status(404).json({ "message": "Vendors data are not available" });  
-    // } catch (error) {  
-    //     // Optionally log the error for debugging  
-    //     console.error("Error fetching vendors: ", error);  
-    //     return res.status(500).json({ "message": "Internal server error" });  
-    // }    
+    
 }
 
 

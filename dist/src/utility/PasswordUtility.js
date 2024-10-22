@@ -39,11 +39,11 @@ const ValidateSignature = (req) => __awaiter(void 0, void 0, void 0, function* (
     // console.log('Authorization Header:', signature); // Log the Authorization header
     if (signature && signature.startsWith('Bearer ')) {
         const token = signature.split(' ')[1];
-        console.log('Extracted Token:', token); // Log the token
+        // console.log('Extracted Token:', token);  // Log the token
         try {
             // Verify the token and return the decoded user payload
             const payload = jsonwebtoken_1.default.verify(token, config_1.APP_SECRET);
-            console.log('Decoded Payload:', payload); // Log the decoded payload
+            // console.log('Decoded Payload:', payload); // Log the decoded payload
             req.user = payload; // Assign the payload to req.user
             //
             return payload; // Token is valid, continue
