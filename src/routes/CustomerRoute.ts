@@ -43,11 +43,11 @@ router.patch('/profile', EditCustomerProfile)
 
 
 //Cart
-router.post('/create-order', addToCart)
+router.post('/addToCart', addToCart)
 
-router.get('/orders', GetCart)
+router.get('/GetCart', GetCart)
 
-router.delete('/order/:id', DeleteFromCart)
+router.delete('/deleteCart', DeleteFromCart)
 
 
 

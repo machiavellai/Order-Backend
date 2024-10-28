@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
+exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.DeleteFromCart = exports.GetCart = exports.addToCart = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const Customer_dto_1 = require("../dto/Customer.dto");
@@ -98,12 +98,12 @@ const VerifyCustomer = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         const profile = yield Customer_1.Customer.findById(customer._id);
         console.log("Profile found:", profile);
         if (profile) {
-            // Check if OTP matches
-            console.log("OTP from profile:", profile.otp);
-            console.log("OTP from request:", otp);
-            // Check if OTP is valid and not expired
-            console.log("OTP expiry date:", profile.otp_expiry);
-            console.log("Current date:", new Date());
+            // // Check if OTP matches
+            // console.log("OTP from profile:", profile.otp);
+            // console.log("OTP from request:", otp);
+            // // Check if OTP is valid and not expired
+            // console.log("OTP expiry date:", profile.otp_expiry);
+            // console.log("Current date:", new Date());
             if (profile.otp === parseInt(otp) && profile.otp_expiry >= new Date()) {
                 profile.verified = true;
                 const updatedCustomerResponse = yield profile.save();
@@ -172,6 +172,72 @@ const EditCustomerProfile = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.EditCustomerProfile = EditCustomerProfile;
+const addToCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    if (customer) {
+        const profile = yield Customer_1.Customer.findById(customer._id).populate('cart.food');
+        let cartItems = Array();
+        const { _id, unit } = req.body;
+        const food = yield models_1.Food.findById(_id);
+        if (food) {
+            if (profile != null) {
+                //check for cart items
+                cartItems = profile.cart;
+                if (cartItems.length > 0) {
+                    //check and update unit
+                    let existingFoodItems = cartItems.filter((item) => item.food._id.toString() === _id);
+                    if (existingFoodItems.length > 0) {
+                        const index = cartItems.indexOf(existingFoodItems[0]);
+                        if (unit > 0) {
+                            cartItems[index] = { food, unit };
+                        }
+                        else {
+                            cartItems.splice(index, 1);
+                        }
+                    }
+                    else {
+                        cartItems.push({ food, unit });
+                    }
+                }
+                else {
+                    //add new item to cart
+                    cartItems.push({ food, unit });
+                }
+                if (cartItems) {
+                    profile.cart = cartItems;
+                    const cartResult = yield profile.save();
+                    return res.status(200).json(cartResult.cart);
+                }
+            }
+        }
+    }
+    return res.status(400).json({ message: "unable to add Item to Cart" });
+});
+exports.addToCart = addToCart;
+const GetCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    if (customer) {
+        const profile = yield Customer_1.Customer.findById(customer._id).populate('cart.food');
+        if (profile) {
+            return res.status(200).json(profile.cart);
+        }
+    }
+    return res.status(400).json({ message: 'Cart is empty!' });
+});
+exports.GetCart = GetCart;
+const DeleteFromCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    if (customer) {
+        const profile = yield Customer_1.Customer.findById(customer._id).populate('cart.food').exec();
+        if (profile != null) {
+            profile.cart = [];
+            const cartResult = yield profile.save();
+            return res.status(200).json(cartResult);
+        }
+    }
+    return res.status(400).json({ message: 'Cart is already empty!' });
+});
+exports.DeleteFromCart = DeleteFromCart;
 const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     //grab current login customer
     const customer = req.user;

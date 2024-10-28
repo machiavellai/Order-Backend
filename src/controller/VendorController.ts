@@ -4,6 +4,7 @@ import { FindVendor } from './AdminController';
 import { GenerateSignature, ValidatePassword } from '../utility';
 import { CreateFoodInput } from '../dto/Food.dto';
 import { Food } from '../models/Food';
+import { Order } from '../models/Order';
 
 
 export const VendorLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -202,6 +203,48 @@ export const GetFood = async (req: Request, res: Response, next: NextFunction) =
 }
 
 
+
+export const GetCurrentOrders = async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const user = req.user;
+
+    if (user) {
+        const orders = await Order.find({ vendorId: user._id }).populate('items.food')
+
+        if (orders != null) {
+            return res.status(200).json(orders)
+        }
+
+
+
+    }
+    return res.json({ "message": "orders not found" })
+}
+
+
+export const GetrOderDetails = async (req: Request, res: Response, next: NextFunction) => {
+
+    const orderId = req.params.id;;
+
+    if (orderId) {
+        const order = await Order.findById(orderId).populate('items.food')
+
+        if (order != null) {
+            return res.status(200).json(order)
+        }
+
+
+
+    }
+    return res.json({ "message": "orders not found" })
+}
+
+
+export const ProcessOrder = async (req: Request, res: Response, next: NextFunction) => {
+
+    
+}
 
 
 
