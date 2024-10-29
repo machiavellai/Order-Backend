@@ -21,7 +21,11 @@ router.get('/OTP', controller_1.RequestOtp);
 //profile
 router.get('/profile', controller_1.GetCustomerProfile);
 router.patch('/profile', controller_1.EditCustomerProfile);
-//orders
+//Cart
+router.post('/addToCart', controller_1.addToCart);
+router.get('/GetCart', controller_1.GetCart);
+router.delete('/deleteCart', controller_1.DeleteFromCart);
+//Orders
 router.post('/create-order', middlewares_1.Authenticate, controller_1.CreateOrder);
 router.get('/orders', middlewares_1.Authenticate, controller_1.GetOrders);
 router.get('/order/:id', controller_1.GetOrdersById);
