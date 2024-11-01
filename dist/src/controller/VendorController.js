@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetFood = exports.AddFood = exports.UpdateVendorService = exports.UpdateVendorCoverImage = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
+exports.ProcessOrder = exports.GetrOderDetails = exports.GetCurrentOrders = exports.GetFood = exports.AddFood = exports.UpdateVendorService = exports.UpdateVendorCoverImage = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
 const AdminController_1 = require("./AdminController");
 const utility_1 = require("../utility");
 const Food_1 = require("../models/Food");
+const Order_1 = require("../models/Order");
 const VendorLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const existingVendor = yield (0, AdminController_1.FindVendor)('', email);
@@ -143,6 +144,46 @@ const GetFood = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     return res.json({ "message": "Food were not FOund" });
 });
 exports.GetFood = GetFood;
+const GetCurrentOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    if (user) {
+        const orders = yield Order_1.Order.find({ vendorId: user._id }).populate('items.food');
+        if (orders != null) {
+            return res.status(200).json(orders);
+        }
+    }
+    return res.json({ "message": "orders not found" });
+});
+exports.GetCurrentOrders = GetCurrentOrders;
+const GetrOderDetails = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    ;
+    if (orderId) {
+        const order = yield Order_1.Order.findById(orderId).populate('items.food');
+        if (order != null) {
+            return res.status(200).json(order);
+        }
+    }
+    return res.json({ "message": "orders not found" });
+});
+exports.GetrOderDetails = GetrOderDetails;
+const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    const { status, remarks, time } = req.body; //ACCEPT // REJECT // UNDER-PROCESS // READY
+    if (orderId) {
+        const order = yield Order_1.Order.findById(orderId).populate('food');
+        order.orderStatus = status;
+        order.remarks = remarks;
+        if (time) {
+            order.readyTime = time;
+        }
+        const orderResult = yield order.save();
+        if (orderResult !== null) {
+            return res.json({ "message": "Unable to process order!" });
+        }
+    }
+});
+exports.ProcessOrder = ProcessOrder;
 // {
 //     "_id": {
 //       "$oid": "66ebe60b124969e79e047ef0"

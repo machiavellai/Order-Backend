@@ -250,11 +250,13 @@ const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const cart = req.body; // [{id: XX, unit: XX}]
         let cartItems = Array();
         let netAmount = 0.0;
+        let vendorId;
         //calculate order amount
         const foods = yield models_1.Food.find().where('_id').in(cart.map(item => item._id)).exec();
         foods.map(food => {
             cart.map(({ _id, unit }) => {
                 if (food._id == _id) {
+                    vendorId = food.vendorId;
                     netAmount += (food.price * unit);
                     cartItems.push({ food, unit });
                 }
@@ -265,23 +267,32 @@ const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             //create order
             const currentOrder = yield Order_1.Order.create({
                 orderId: orderId,
+                vendorId: vendorId,
                 items: cartItems,
                 totalAmount: netAmount,
                 orderDate: new Date(),
                 paidThrough: "COD",
                 paymentResponse: "",
-                orderStatus: 'waiting'
+                orderStatus: 'waiting',
+                remarks: '',
+                deliveryId: '',
+                appliedOffers: false,
+                offerId: null,
+                readyTime: 30,
             });
-            if (currentOrder) {
-                console.log('Before push:', profile.orders); // Log before push
-                profile.orders.push(currentOrder);
-                yield profile.save();
-                console.log('After push:', profile.orders);
-                return res.status(200).json(currentOrder);
-            }
+            // profile.orders.push(currentOrder)
+            //logic check
+            // console.log('Before push:', profile.orders);  // Log before push
+            profile.cart = [];
+            profile.orders.push(currentOrder);
+            // await profile.save()
+            const profileSaveResponse = yield profile.save();
+            res.status(200).json(currentOrder);
+        }
+        else {
+            return res.status(400).json({ message: "error with Create Order" });
         }
     }
-    return res.status(400).json({ message: "errow with Create Order" });
 });
 exports.CreateOrder = CreateOrder;
 const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

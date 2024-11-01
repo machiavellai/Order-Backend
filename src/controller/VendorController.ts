@@ -243,10 +243,28 @@ export const GetrOderDetails = async (req: Request, res: Response, next: NextFun
 
 export const ProcessOrder = async (req: Request, res: Response, next: NextFunction) => {
 
-    
+    const orderId = req.params.id;
+
+    const { status, remarks, time } = req.body; //ACCEPT // REJECT // UNDER-PROCESS // READY
+
+    if (orderId) {
+
+        const order = await Order.findById(orderId).populate('food');
+
+        order.orderStatus = status;
+
+        order.remarks = remarks;
+
+        if (time) {
+            order.readyTime = time;
+        }
+        const orderResult = await order.save();
+        if (orderResult !== null) {
+            return res.json({ "message": "Unable to process order!" })
+        }
+    }
+
 }
-
-
 
 
 // {

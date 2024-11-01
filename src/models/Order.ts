@@ -14,7 +14,7 @@ export interface OrderDoc extends Document {
     paymentResponse: string;
     food: [FoodDoc];
     remarks: string;
-    paidAmount: number;
+    // paidAmount: number;
     deliveryId: string;
     readyTime: number; //30 mins max
     appliedOffers: boolean;
@@ -37,13 +37,13 @@ const OrderSchema = new Schema({
     paidThrough: { type: String },
     paymentResponse: { type: String },
     orderStatus: { type: String },
-    // food: [{
-    //     type: mongoose.SchemaTypes.ObjectId,
-    //     ref: 'food'
-    // }]
-    // readyTime:{type: Number},
-    // paidAmount: {type: Number, require: true},
-
+    remarks: { type: String },
+    // paidAmount: number;
+    deliveryId: { type: String },
+    appliedOffers: { type: Boolean },
+    readyTime: { type: Number }, //30 mins max
+    offerId: { type: String }
+    
 }, {
     toJSON: {
         transform(doc, ret) {
