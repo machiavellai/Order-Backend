@@ -372,15 +372,13 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
                 readyTime: 30,
             })
 
-            // profile.orders.push(currentOrder)
-            //logic check
-            // console.log('Before push:', profile.orders);  // Log before push
+
             profile.cart = [] as any;
             profile.orders.push(currentOrder);
             // await profile.save()
 
             const profileSaveResponse = await profile.save()
-            res.status(200).json(currentOrder)
+            res.status(200).json(profileSaveResponse)
 
         } else {
 
