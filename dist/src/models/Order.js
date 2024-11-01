@@ -25,13 +25,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-// paidAmount: number;
-// vendorId: string;
-// remarks: string;
-// deliveryId: string;
-// readyTime: number;
 const OrderSchema = new mongoose_1.Schema({
     orderId: { type: String, require: true },
+    vendorId: { type: String, require: true },
     // vendorId: {type: String, require: true},
     items: [
         {
@@ -44,12 +40,12 @@ const OrderSchema = new mongoose_1.Schema({
     paidThrough: { type: String },
     paymentResponse: { type: String },
     orderStatus: { type: String },
-    // food: [{
-    //     type: mongoose.SchemaTypes.ObjectId,
-    //     ref: 'food'
-    // }]
-    // readyTime:{type: Number},
-    // paidAmount: {type: Number, require: true},
+    remarks: { type: String },
+    // paidAmount: number;
+    deliveryId: { type: String },
+    appliedOffers: { type: Boolean },
+    readyTime: { type: Number }, //30 mins max
+    offerId: { type: String }
 }, {
     toJSON: {
         transform(doc, ret) {

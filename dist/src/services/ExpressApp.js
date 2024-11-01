@@ -19,7 +19,7 @@ const ShoppingRoute_1 = require("../routes/ShoppingRoute");
 exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: true }));
-    app.use('/images', express_1.default.static(path_1.default.join(__dirname, 'images')));
+    app.use('/images', express_1.default.static(path_1.default.join(__dirname, '../src/images')));
     app.use('/admin', routes_1.AdminRoute);
     app.use('/vendor', routes_1.VandorRoute);
     app.use('/Shopp', ShoppingRoute_1.ShoppingRoute);

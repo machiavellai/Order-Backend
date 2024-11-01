@@ -339,6 +339,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
 
         let netAmount = 0.0;
 
+        let vendorId;
         //calculate order amount
 
         const foods = await Food.find().where('_id').in(cart.map(item => item._id)).exec()
@@ -346,6 +347,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
         foods.map(food => {
             cart.map(({ _id, unit }) => {
                 if (food._id == _id) {
+                    vendorId = food.vendorId;
                     netAmount += (food.price * unit);
                     cartItems.push({ food, unit })
                 }
@@ -356,26 +358,37 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
             //create order
             const currentOrder = await Order.create({
                 orderId: orderId,
+                vendorId: vendorId,
                 items: cartItems,
                 totalAmount: netAmount,
                 orderDate: new Date(),
                 paidThrough: "COD",
                 paymentResponse: "",
-                orderStatus: 'waiting'
+                orderStatus: 'waiting',
+                remarks: '',
+                deliveryId: '',
+                appliedOffers: false,
+                offerId: null,
+                readyTime: 30,
             })
 
-            if (currentOrder) {
-                console.log('Before push:', profile.orders);  // Log before push
-                profile.orders.push(currentOrder);
-                await profile.save()
-                console.log('After push:', profile.orders);
-                return res.status(200).json(currentOrder)
-            }
+            // profile.orders.push(currentOrder)
+            //logic check
+            // console.log('Before push:', profile.orders);  // Log before push
+            profile.cart = [] as any;
+            profile.orders.push(currentOrder);
+            // await profile.save()
+
+            const profileSaveResponse = await profile.save()
+            res.status(200).json(currentOrder)
+
+        } else {
+
+            return res.status(400).json({ message: "error with Create Order" })
         }
 
     }
 
-    return res.status(400).json({ message: "errow with Create Order" })
 }
 
 

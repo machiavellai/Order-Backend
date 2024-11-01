@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { AddFood, GetCurrentOrders, GetFood, GetrOderDetails, GetVendorProfile, ProcessOrder, UpdateVendorCoverImage, UpdateVendorProfile, UpdateVendorService, VendorLogin } from '../controller';
 import { Authenticate } from '../middlewares';
 import multer from 'multer';
+import path from 'path';
 
 
 
@@ -10,13 +11,29 @@ const router = express.Router();
 const imageStorage = multer.diskStorage({
 
     destination: function (req, file, cb) {
-        cb(null, 'images')
+        const imgPath = path.resolve(__dirname, '../images'); // or '../src/images' if it exists under src
+        console.log("Image path:", imgPath);  // Log the resolved path
+        cb(null, imgPath)
     },
     filename: function (req, file, cb) {
-        cb(null, new Date().toISOString() + '_' + file.originalname)
+        cb(null, new Date().toISOString().replace(/:/g, '-') + '_' + file.originalname);
     }
 
 })
+
+
+// const imageStorage = multer.diskStorage({
+
+//     destination: function (req, file, cb) {
+//         const imgPath = path.resolve(__dirname, '../images'); // or '../src/images' if it exists under src
+//         console.log("Image path:", imgPath);  // Log the resolved path
+//         cb(null, imgPath);  // Resolve absolute path
+//     },
+//     filename: function (req, file, cb) {
+//         cb(null, new Date().toISOString().replace(/:/g, '-') + '_' + file.originalname);
+//     }
+// });
+
 
 const images = multer({ storage: imageStorage }).array('images', 10)
 
