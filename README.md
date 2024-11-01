@@ -4,6 +4,8 @@
 Full Stack Developer 
 
 ## Project Overview
+## Postman Documentation link
+[text](https://documenter.getpostman.com/view/20318764/2sAY4vghqr)
 
 This project is a **Food Order Backend System** that allows users to sign up, verify their phone numbers using OTPs (One Time Passwords), and perform other customer-related operations. The backend is built using **Node.js**, **Express**, **MongoDB (Mongoose)** for primary data storage, and **Redis** for handling OTPs and caching. It uses JWT for user authentication and implements secure password hashing and salting.
 
@@ -52,3 +54,6 @@ JWT (jsonwebtoken) - For generating and verifying tokens.
 Bcrypt - Used for password hashing and salting.
 UUID - Generates unique identifiers for Redis keys.
 Docker (Optional) - For containerizing the application.
+
+
+
