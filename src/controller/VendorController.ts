@@ -215,9 +215,6 @@ export const GetCurrentOrders = async (req: Request, res: Response, next: NextFu
         if (orders != null) {
             return res.status(200).json(orders)
         }
-
-
-
     }
     return res.json({ "message": "orders not found" })
 }
@@ -234,8 +231,6 @@ export const GetrOderDetails = async (req: Request, res: Response, next: NextFun
             return res.status(200).json(order)
         }
 
-
-
     }
     return res.json({ "message": "orders not found" })
 }
@@ -245,7 +240,11 @@ export const ProcessOrder = async (req: Request, res: Response, next: NextFuncti
 
     const orderId = req.params.id;
 
-    const { status, remarks, time } = req.body; //ACCEPT // REJECT // UNDER-PROCESS // READY
+    const {
+        status,
+        remarks,
+        time
+    } = req.body; //ACCEPT // REJECT // UNDER-PROCESS // READY
 
     if (orderId) {
 
@@ -260,9 +259,10 @@ export const ProcessOrder = async (req: Request, res: Response, next: NextFuncti
         }
         const orderResult = await order.save();
         if (orderResult !== null) {
-            return res.json({ "message": "Unable to process order!" })
+            return res.status(200).json(orderResult)
         }
     }
+    return res.json({ "message": "unable to process Orders" })
 
 }
 

@@ -280,14 +280,11 @@ const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 offerId: null,
                 readyTime: 30,
             });
-            // profile.orders.push(currentOrder)
-            //logic check
-            // console.log('Before push:', profile.orders);  // Log before push
             profile.cart = [];
             profile.orders.push(currentOrder);
             // await profile.save()
             const profileSaveResponse = yield profile.save();
-            res.status(200).json(currentOrder);
+            res.status(200).json(profileSaveResponse);
         }
         else {
             return res.status(400).json({ message: "error with Create Order" });
