@@ -46,9 +46,9 @@ router.patch('/service', Authenticate, UpdateVendorService)
 
 
 //Orders
-router.get('/orders', GetCurrentOrders)
-router.put('/order/:id/process', ProcessOrder)
-router.get('/order/:id', GetrOderDetails)
+router.get('/orders', Authenticate, GetCurrentOrders)
+router.put('/order/:id/process', Authenticate, ProcessOrder)
+router.get('/order/:id', Authenticate, GetrOderDetails)
 
 
 //food functionality

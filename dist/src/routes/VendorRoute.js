@@ -38,9 +38,9 @@ router.patch('/profile', middlewares_1.Authenticate, controller_1.UpdateVendorPr
 router.patch('/coverImage', middlewares_1.Authenticate, images, controller_1.UpdateVendorCoverImage);
 router.patch('/service', middlewares_1.Authenticate, controller_1.UpdateVendorService);
 //Orders
-router.get('/orders', controller_1.GetCurrentOrders);
-router.put('/order/:id/process', controller_1.ProcessOrder);
-router.get('/order/:id', controller_1.GetrOderDetails);
+router.get('/orders', middlewares_1.Authenticate, controller_1.GetCurrentOrders);
+router.put('/order/:id/process', middlewares_1.Authenticate, controller_1.ProcessOrder);
+router.get('/order/:id', middlewares_1.Authenticate, controller_1.GetrOderDetails);
 //food functionality
 router.post('/food', middlewares_1.Authenticate, images, controller_1.AddFood);
 router.get('/getfoods', middlewares_1.Authenticate, controller_1.GetFood);
