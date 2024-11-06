@@ -171,7 +171,7 @@ const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     const orderId = req.params.id;
     const { status, remarks, time } = req.body; //ACCEPT // REJECT // UNDER-PROCESS // READY
     if (orderId) {
-        const order = yield Order_1.Order.findById(orderId).populate('food');
+        const order = yield Order_1.Order.findById(orderId).populate('items.food');
         order.orderStatus = status;
         order.remarks = remarks;
         if (time) {
@@ -179,9 +179,10 @@ const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         }
         const orderResult = yield order.save();
         if (orderResult !== null) {
-            return res.json({ "message": "Unable to process order!" });
+            return res.status(200).json(orderResult);
         }
     }
+    return res.json({ "message": "unable to process Orders" });
 });
 exports.ProcessOrder = ProcessOrder;
 // {

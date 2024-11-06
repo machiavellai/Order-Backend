@@ -339,7 +339,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
 
         let netAmount = 0.0;
 
-        let vendorId;
+        let vendorId: any;
         //calculate order amount
 
         const foods = await Food.find().where('_id').in(cart.map(item => item._id)).exec()
@@ -362,7 +362,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
                 items: cartItems,
                 totalAmount: netAmount,
                 orderDate: new Date(),
-                paidThrough: "COD",
+                paidThrough: "MODE",
                 paymentResponse: "",
                 orderStatus: 'waiting',
                 remarks: '',

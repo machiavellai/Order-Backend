@@ -271,7 +271,7 @@ const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 items: cartItems,
                 totalAmount: netAmount,
                 orderDate: new Date(),
-                paidThrough: "COD",
+                paidThrough: "MODE",
                 paymentResponse: "",
                 orderStatus: 'waiting',
                 remarks: '',

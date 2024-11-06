@@ -206,7 +206,6 @@ export const GetFood = async (req: Request, res: Response, next: NextFunction) =
 
 export const GetCurrentOrders = async (req: Request, res: Response, next: NextFunction) => {
 
-
     const user = req.user;
 
     if (user) {
@@ -223,6 +222,7 @@ export const GetCurrentOrders = async (req: Request, res: Response, next: NextFu
 export const GetrOderDetails = async (req: Request, res: Response, next: NextFunction) => {
 
     const orderId = req.params.id;;
+    
 
     if (orderId) {
         const order = await Order.findById(orderId).populate('items.food')
@@ -248,7 +248,7 @@ export const ProcessOrder = async (req: Request, res: Response, next: NextFuncti
 
     if (orderId) {
 
-        const order = await Order.findById(orderId).populate('food');
+        const order = await Order.findById(orderId).populate('items.food');
 
         order.orderStatus = status;
 
