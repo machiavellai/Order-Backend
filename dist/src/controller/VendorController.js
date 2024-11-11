@@ -9,11 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProcessOrder = exports.GetrOderDetails = exports.GetCurrentOrders = exports.GetFood = exports.AddFood = exports.UpdateVendorService = exports.UpdateVendorCoverImage = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
+exports.EditOffers = exports.AddOffer = exports.GetOffers = exports.ProcessOrder = exports.GetrOderDetails = exports.GetCurrentOrders = exports.GetFood = exports.AddFood = exports.UpdateVendorService = exports.UpdateVendorCoverImage = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
 const AdminController_1 = require("./AdminController");
 const utility_1 = require("../utility");
 const Food_1 = require("../models/Food");
 const Order_1 = require("../models/Order");
+const Offer_1 = require("../models/Offer");
 const VendorLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const existingVendor = yield (0, AdminController_1.FindVendor)('', email);
@@ -185,30 +186,41 @@ const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     return res.json({ "message": "unable to process Orders" });
 });
 exports.ProcessOrder = ProcessOrder;
-// {
-//     "_id": {
-//       "$oid": "66ebe60b124969e79e047ef0"
-//     },
-//     "name": "Second Resturant",
-//     "ownerName": "Mr Guest",
-//     "foodType": [
-//       "Carbs",
-//       "Veg"
-//     ],
-//     "pincode": "400050",
-//     "address": "10 obadiah Lane",
-//     "phone": "0912345670",
-//     "email": "ioun@gmail.com",
-//     "password": "12345678",
-//     "salt": "yyyuuiijjjuiop",
-//     "coverImages": [],
-//     "rating": 0,
-//     "createdAt": {
-//       "$date": "2024-09-19T08:51:23.673Z"
-//     },
-//     "updatedAt": {
-//       "$date": "2024-09-19T08:51:23.673Z"
-//     },
-//     "__v": 0
-//   }
+const GetOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.GetOffers = GetOffers;
+const AddOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    console.log(user);
+    if (user) {
+        const { title, description, offerType, offerAmount, pincode, promoCode, promoType, startValidity, endValidity, bank, bins, minValue, isActive } = req.body;
+        const vendor = yield (0, AdminController_1.FindVendor)(user._id);
+        console.log(vendor);
+        if (vendor) {
+            const offer = yield Offer_1.Offer.create({
+                title,
+                description,
+                offerType,
+                offerAmount,
+                pincode,
+                promoCode,
+                promoType,
+                startValidity,
+                endValidity,
+                bank,
+                bins,
+                minValue,
+                isActive,
+                vendors: [vendor]
+            });
+            console.log(offer);
+            return res.status(200).json(offer);
+        }
+    }
+    return res.json({ "message": "unable to Add Offers" });
+});
+exports.AddOffer = AddOffer;
+const EditOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.EditOffers = EditOffers;
 //# sourceMappingURL=VendorController.js.map

@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import { EditVendorInputs, VendorLoginInputs, VendorPayload } from '../dto';
+import { CreateOfferInputs, EditVendorInputs, VendorLoginInputs, VendorPayload } from '../dto';
 import { FindVendor } from './AdminController';
 import { GenerateSignature, ValidatePassword } from '../utility';
 import { CreateFoodInput } from '../dto/Food.dto';
 import { Food } from '../models/Food';
 import { Order } from '../models/Order';
+import { Offer } from '../models/Offer';
 
 
 export const VendorLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -222,7 +223,7 @@ export const GetCurrentOrders = async (req: Request, res: Response, next: NextFu
 export const GetrOderDetails = async (req: Request, res: Response, next: NextFunction) => {
 
     const orderId = req.params.id;;
-    
+
 
     if (orderId) {
         const order = await Order.findById(orderId).populate('items.food')
@@ -266,30 +267,65 @@ export const ProcessOrder = async (req: Request, res: Response, next: NextFuncti
 
 }
 
+export const GetOffers = async (req: Request, res: Response, next: NextFunction) => {
 
-// {
-//     "_id": {
-//       "$oid": "66ebe60b124969e79e047ef0"
-//     },
-//     "name": "Second Resturant",
-//     "ownerName": "Mr Guest",
-//     "foodType": [
-//       "Carbs",
-//       "Veg"
-//     ],
-//     "pincode": "400050",
-//     "address": "10 obadiah Lane",
-//     "phone": "0912345670",
-//     "email": "ioun@gmail.com",
-//     "password": "12345678",
-//     "salt": "yyyuuiijjjuiop",
-//     "coverImages": [],
-//     "rating": 0,
-//     "createdAt": {
-//       "$date": "2024-09-19T08:51:23.673Z"
-//     },
-//     "updatedAt": {
-//       "$date": "2024-09-19T08:51:23.673Z"
-//     },
-//     "__v": 0
-//   }
+}
+
+export const AddOffer = async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const user = req.user;
+    console.log(user);
+
+    if (user) {
+        const {
+            title,
+            description,
+            offerType,
+            offerAmount,
+            pincode,
+            promoCode,
+            promoType,
+            startValidity,
+            endValidity,
+            bank,
+            bins,
+            minValue,
+            isActive
+        } = <CreateOfferInputs>req.body
+
+        const vendor = await FindVendor(user._id);
+        console.log(vendor);
+
+        if (vendor) {
+
+            const offer = await Offer.create({
+                title,
+                description,
+                offerType,
+                offerAmount,
+                pincode,
+                promoCode,
+                promoType,
+                startValidity,
+                endValidity,
+                bank,
+                bins,
+                minValue,
+                isActive,
+                vendors: [vendor]
+            })
+
+            console.log(offer);
+            return res.status(200).json(offer)
+        }
+        
+    }
+    return res.json({ "message": "unable to Add Offers" })
+
+}
+
+
+export const EditOffers = async (req: Request, res: Response, next: NextFunction) => {
+
+}
