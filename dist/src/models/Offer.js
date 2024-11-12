@@ -48,8 +48,9 @@ const OfferSchema = new mongoose_1.Schema({
             type: Number
         }
     ],
-    pincode: { type: Number, required: true },
+    pincode: { type: String, required: true },
     images: Boolean,
+    isActive: Boolean
 }, {
     toJSON: {
         transform(doc, ret) {

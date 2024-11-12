@@ -6,6 +6,7 @@ import { GenerateOtp, GenerateOtpAndStoreInRedis, GeneratePassword, GenerateSalt
 import { Customer } from '../models/Customer'
 import { Food } from '../models'
 import { Order } from '../models/Order'
+import { Offer } from '../models/Offer'
 
 export const CustomerSignup = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -431,4 +432,60 @@ export const GetOrdersById = async (req: Request, res: Response, next: NextFunct
 
         res.status(200).json(order)
     }
+}
+
+export const VerifyOffer = async (req: Request, res: Response, next: NextFunction) => {
+
+    const offerId = req.params.id;
+    const customer = req.user;
+
+    console.log(offerId);
+    console.log(customer);
+
+    if (customer) {
+        const appliedOffer = await Offer.findById(offerId);
+        console.log(appliedOffer);
+
+        if (appliedOffer) {
+
+            if (appliedOffer.promoType === "USER") {
+
+                //only can apply once per use
+            } else {
+                if (appliedOffer.isActive) {
+                    console.log("The Applied offer is :", appliedOffer);
+                    return res.status(200).json({ message: "Offer is Valid", offer: appliedOffer })
+                }
+            }
+        }
+    }
+    return res.status(400).json({ message: "Failed to get Offer!" });
+}
+
+export const CreatePayment = async (req: Request, res: Response, next: NextFunction) => {
+    const customer = req.user;
+
+    const {
+        amount,
+        paymentMode,
+        offerId
+    } = req.body;
+
+    let payableAmount = Number(amount);
+
+
+    if (offerId) {
+        const appliedOffer = await Offer.findById(offerId);
+
+        if (appliedOffer) {
+            if (appliedOffer.isActive) {
+                payableAmount = (payableAmount - appliedOffer.offerAmount)
+            }
+        }
+    }
+
+    //Perform Payment gateway Chrge API call
+
+
+    //create Record on Transaction
 }

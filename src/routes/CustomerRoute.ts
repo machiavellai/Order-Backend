@@ -2,19 +2,26 @@ import express, { Request, Response, NextFunction } from 'express'
 import {
     addToCart,
     CreateOrder,
+    CreatePayment,
     CustomerLogin,
-    CustomerSignup
-    , DeleteFromCart, EditCustomerProfile,
-    GetCart, GetCustomerProfile, GetOrders
-    , GetOrdersById, RequestOtp,
-    VerifyCustomer
+    CustomerSignup,
+    DeleteFromCart,
+    EditCustomerProfile,
+    GetCart,
+    GetCustomerProfile,
+    GetOrders,
+    GetOrdersById,
+    RequestOtp,
+    VerifyCustomer,
+    VerifyOffer
 } from '../controller';
-import { Authenticate } from '../middlewares';
+import {
+    Authenticate
+} from '../middlewares';
 
 const router = express.Router();
 
 //Creare new user,
-
 router.post('/signup', CustomerSignup)
 
 
@@ -49,6 +56,14 @@ router.get('/GetCart', GetCart)
 
 router.delete('/deleteCart', DeleteFromCart)
 
+
+
+//apply offers
+router.get('/offer/verify/:id', Authenticate, VerifyOffer)
+
+
+//payment
+router.post('/create-Payment', CreatePayment)
 
 
 //Orders

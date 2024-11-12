@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose'
 export interface OfferDoc extends Document {
     offerType: string; //VENDOR //GENERIC
     vendors: [any]; // ['93456ac]
-    title: string; INR
+    title: string; 
     description: string;
     minValue: number;
     offerAmount: number;
@@ -42,9 +42,9 @@ const OfferSchema = new Schema({
         type: Number
     }
     ],
-    pincode: { type: Number, required: true },
+    pincode: { type: String, required: true },
     images: Boolean,
-
+    isActive: Boolean
 }, {
 
 
