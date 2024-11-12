@@ -18,5 +18,7 @@ router.get('/foods-in-30-min/:pincode', controller_1.GetFoodIn30Min);
 /** ------------------Food Availability */
 router.get('/search/:pincode', controller_1.SearchFoods);
 /** ------------------Food Availability */
+/** ------------------------- Find Offers  ---------------------- */
+router.get('/offers/:pincode', controller_1.GetAvailableOffers);
 router.get('/resturant/:id', controller_1.ResturantById);
 //# sourceMappingURL=ShoppingRoute.js.map

@@ -35,7 +35,7 @@ router.get('/order/:id', middlewares_1.Authenticate, controller_1.GetrOderDetail
 //Offers
 router.get('/offers', middlewares_1.Authenticate, controller_1.GetOffers);
 router.post('/offer', middlewares_1.Authenticate, controller_1.AddOffer);
-router.get('/offer/:id', middlewares_1.Authenticate, controller_1.EditOffers);
+router.put('/offer/:id', middlewares_1.Authenticate, controller_1.EditOffers);
 //delte offers
 //food functionality
 router.post('/food', middlewares_1.Authenticate, images, controller_1.AddFood);

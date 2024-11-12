@@ -187,11 +187,33 @@ const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.ProcessOrder = ProcessOrder;
 const GetOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    // console.log(user);
+    if (user) {
+        let currentOffers = Array();
+        const offers = yield Offer_1.Offer.find().populate('vendors');
+        if (offers) {
+            offers.map(item => {
+                if (item.vendors) {
+                    item.vendors.map(vendor => {
+                        if (vendor._id.toString() === user._id) {
+                            currentOffers.push(item);
+                        }
+                    });
+                }
+                if (item.offerType === "GENERIC") {
+                    currentOffers.push(item);
+                }
+            });
+        }
+        return res.json(currentOffers);
+    }
+    return res.json({ "message": "unable to Get Offers" });
 });
 exports.GetOffers = GetOffers;
 const AddOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    console.log(user);
+    // console.log(user);
     if (user) {
         const { title, description, offerType, offerAmount, pincode, promoCode, promoType, startValidity, endValidity, bank, bins, minValue, isActive } = req.body;
         const vendor = yield (0, AdminController_1.FindVendor)(user._id);
@@ -211,7 +233,7 @@ const AddOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                 bins,
                 minValue,
                 isActive,
-                vendors: [vendor]
+                vendors: [vendor._id]
             });
             console.log(offer);
             return res.status(200).json(offer);
@@ -221,6 +243,36 @@ const AddOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.AddOffer = AddOffer;
 const EditOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const offerId = req.params.id;
+    // console.log(user);
+    if (user) {
+        const { title, description, offerType, offerAmount, pincode, promoCode, promoType, startValidity, endValidity, bank, bins, minValue, isActive } = req.body;
+        // console.log(vendor);
+        const currentOffer = yield Offer_1.Offer.findById(offerId);
+        if (currentOffer) {
+            const vendor = yield (0, AdminController_1.FindVendor)(user._id);
+            if (vendor) {
+                currentOffer.title = title,
+                    currentOffer.description = description,
+                    currentOffer.offerAmount = offerAmount,
+                    currentOffer.offerType = offerType,
+                    currentOffer.pincode = pincode,
+                    currentOffer.promoCode = promoCode,
+                    currentOffer.promoType = promoType,
+                    currentOffer.startValidity = startValidity,
+                    currentOffer.bank = bank,
+                    currentOffer.endValidity = endValidity,
+                    currentOffer.minValue = minValue,
+                    currentOffer.bins = bins,
+                    currentOffer.isActive = isActive;
+                const result = yield currentOffer.save();
+                console.log(result);
+                return res.status(200).json(result);
+            }
+        }
+    }
+    return res.json({ "message": "unable to Add Offers" });
 });
 exports.EditOffers = EditOffers;
 //# sourceMappingURL=VendorController.js.map

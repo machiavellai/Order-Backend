@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ResturantById = exports.SearchFoods = exports.GetFoodIn30Min = exports.GetTopResturants = exports.GetFoodAvailability = void 0;
+exports.GetAvailableOffers = exports.ResturantById = exports.SearchFoods = exports.GetFoodIn30Min = exports.GetTopResturants = exports.GetFoodAvailability = void 0;
 const models_1 = require("../models");
+const Offer_1 = require("../models/Offer");
 const GetFoodAvailability = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const pincode = req.params.pincode;
     const result = yield models_1.Vendor.find({ pincode: pincode, serviceAvailable: false })
@@ -72,4 +73,20 @@ const ResturantById = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     return res.status(400).json({ message: "Data not found" });
 });
 exports.ResturantById = ResturantById;
+const GetAvailableOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const pincode = req.params.pincode;
+    console.log("Requested Pincode:", pincode);
+    const offers = yield Offer_1.Offer.find({ pincode: pincode, isActive: true }).populate('vendors');
+    if (offers) {
+        offers.forEach(offer => {
+            console.log(`Offer Title: ${offer.title}, Pincode: ${offer.pincode}, isActive: ${offer.isActive}`);
+            offer.vendors.forEach(vendor => {
+                console.log(`Associated Vendor ID: ${vendor._id}`);
+            });
+        });
+        return res.status(200).json(offers);
+    }
+    return res.status(400).json({ message: "Offers not found" });
+});
+exports.GetAvailableOffers = GetAvailableOffers;
 //# sourceMappingURL=ShoppingController.js.map

@@ -42,7 +42,7 @@ router.get('/order/:id', Authenticate, GetrOderDetails)
 //Offers
 router.get('/offers', Authenticate, GetOffers)
 router.post('/offer', Authenticate, AddOffer)
-router.get('/offer/:id', Authenticate, EditOffers)
+router.put('/offer/:id', Authenticate, EditOffers)
 
 //delte offers
 

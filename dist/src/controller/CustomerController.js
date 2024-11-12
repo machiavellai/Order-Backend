@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.DeleteFromCart = exports.GetCart = exports.addToCart = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
+exports.VerifyOffer = exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.DeleteFromCart = exports.GetCart = exports.addToCart = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const Customer_dto_1 = require("../dto/Customer.dto");
@@ -17,6 +17,7 @@ const utility_1 = require("../utility");
 const Customer_1 = require("../models/Customer");
 const models_1 = require("../models");
 const Order_1 = require("../models/Order");
+const Offer_1 = require("../models/Offer");
 const CustomerSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const customerInputs = (0, class_transformer_1.plainToClass)(Customer_dto_1.CreateCustomerInpiuts, req.body);
     const inputErrors = yield (0, class_validator_1.validate)(customerInputs, { validationError: { target: true } });
@@ -321,4 +322,27 @@ const GetOrdersById = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.GetOrdersById = GetOrdersById;
+const VerifyOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const offerId = req.params.id;
+    const customer = req.user;
+    console.log(offerId);
+    console.log(customer);
+    if (customer) {
+        const appliedOffer = yield Offer_1.Offer.findById(offerId);
+        console.log(appliedOffer);
+        if (appliedOffer) {
+            if (appliedOffer.promoType === "USER") {
+                //only can apply once per use
+            }
+            else {
+                if (appliedOffer.isActive) {
+                    console.log("The Applied offer is :", appliedOffer);
+                    return res.status(200).json({ message: "Offer is Valid", offer: appliedOffer });
+                }
+            }
+        }
+    }
+    return res.status(400).json({ message: "Failed to get Offer!" });
+});
+exports.VerifyOffer = VerifyOffer;
 //# sourceMappingURL=CustomerController.js.map

@@ -25,6 +25,8 @@ router.patch('/profile', controller_1.EditCustomerProfile);
 router.post('/addToCart', controller_1.addToCart);
 router.get('/GetCart', controller_1.GetCart);
 router.delete('/deleteCart', controller_1.DeleteFromCart);
+//apply offers
+router.get('/offer/verify/:id', middlewares_1.Authenticate, controller_1.VerifyOffer);
 //Orders
 router.post('/create-order', middlewares_1.Authenticate, controller_1.CreateOrder);
 router.get('/orders', middlewares_1.Authenticate, controller_1.GetOrders);
