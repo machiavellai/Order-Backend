@@ -63,7 +63,7 @@ router.get('/offer/verify/:id', Authenticate, VerifyOffer)
 
 
 //payment
-router.post('/create-Payment', CreatePayment)
+router.post('/create-Payment', Authenticate, CreatePayment)
 
 
 //Orders

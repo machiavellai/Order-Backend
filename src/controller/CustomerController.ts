@@ -1,12 +1,13 @@
 import express, { Request, Response, NextFunction, response } from 'express'
 import { validate, ValidationError } from 'class-validator'
 import { plainToClass } from 'class-transformer'
-import { CreateCustomerInpiuts, EditCustomerProfileInputs, OrderInputs, UserLoginInpiuts } from '../dto/Customer.dto'
+import { CartItems, CreateCustomerInpiuts, EditCustomerProfileInputs, OrderInputs, UserLoginInpiuts } from '../dto/Customer.dto'
 import { GenerateOtp, GenerateOtpAndStoreInRedis, GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } from '../utility'
 import { Customer } from '../models/Customer'
 import { Food } from '../models'
 import { Order } from '../models/Order'
 import { Offer } from '../models/Offer'
+import { Transaction } from '../models/Transaction'
 
 export const CustomerSignup = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -237,7 +238,7 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
         const profile = await Customer.findById(customer._id).populate('cart.food')
         let cartItems = Array()
 
-        const { _id, unit } = <OrderInputs>req.body;
+        const { _id, unit } = <CartItems>req.body;
 
         const food = await Food.findById(_id);
 
@@ -319,22 +320,86 @@ export const DeleteFromCart = async (req: Request, res: Response, next: NextFunc
 }
 
 
+/**=--------------------Payment------------------------ */
+
+
+export const CreatePayment = async (req: Request, res: Response, next: NextFunction) => {
+    const customer = req.user;
+
+    const {
+        amount,
+        paymentMode,
+        offerId
+    } = req.body;
+
+    let payableAmount = Number(amount);
+
+
+    if (offerId) {
+        const appliedOffer = await Offer.findById(offerId);
+
+        if (appliedOffer) {
+            if (appliedOffer.isActive) {
+                payableAmount = (payableAmount - appliedOffer.offerAmount)
+            }
+        }
+    }
+
+    //Perform Payment gateway Chrge API call
+
+
+    //create Record on Transaction
+    const transaction = await Transaction.create({
+        customer: customer._id,
+        vendorId: '',
+        orderId: '',
+        orderValue: payableAmount,
+        offerUsed: offerId || 'NA',
+        status: 'OPEN',
+        paymentMode: paymentMode,
+        paymentResponse: 'Payment is on cash Delivery'
+    })
+
+    // return Transaction ID
+
+    return res.status(200).json(transaction)
+
+}
+
+/**---------------------------Order Section ----------- */
+
+const validateTransaction = async (txnId: string) => {
+    const currentTransaction = await Transaction.findById(txnId);
+    if (currentTransaction) {
+        if (currentTransaction.status.toLowerCase() !== "failed") {
+            return { status: true, currentTransaction }
+        }
+    }
+    return { status: false, currentTransaction }
+
+}
+
+
 export const CreateOrder = async (req: Request, res: Response, next: NextFunction) => {
 
-    //grab current login customer
+    //Order Construct Logic
 
     const customer = req.user
 
-    if (customer) {
-        // create an order ID
+    const { txnId, amount, items } = <OrderInputs>req.body;
 
-        const orderId = `${Math.floor(Math.random() * 89999) + 1000}`
+    if (customer) {
+        //validate transaction
+        const { status, currentTransaction } = await validateTransaction(txnId)
+
+        if (!status) {
+            return res.status(404).json({ message: 'Error woth the Create Order!' })
+        }
+
 
         const profile = await Customer.findById(customer._id)
-        console.log('Customer Profile:', profile);
 
-        //Grab order items from request [ { id: XX, unit : XX}]
-        const cart = <[OrderInputs]>req.body; // [{id: XX, unit: XX}]
+        const orderId = `${Math.floor(Math.random() * 89999) + 1000}`
 
         let cartItems = Array();
 
@@ -343,14 +408,16 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
         let vendorId: any;
         //calculate order amount
 
-        const foods = await Food.find().where('_id').in(cart.map(item => item._id)).exec()
+        const foods = await Food.find().where('_id').in(items.map(item => item._id)).exec()
 
         foods.map(food => {
-            cart.map(({ _id, unit }) => {
+            items.map(({ _id, unit }) => {
                 if (food._id == _id) {
                     vendorId = food.vendorId;
                     netAmount += (food.price * unit);
-                    cartItems.push({ food, unit })
+                    cartItems.push({ food, unit: unit })
+                } else {
+                    console.log(`${food._id} / ${_id}`);
                 }
             })
         })
@@ -362,21 +429,23 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
                 vendorId: vendorId,
                 items: cartItems,
                 totalAmount: netAmount,
+                paidAmount: amount,
                 orderDate: new Date(),
-                paidThrough: "MODE",
-                paymentResponse: "",
                 orderStatus: 'waiting',
                 remarks: '',
                 deliveryId: '',
-                appliedOffers: false,
-                offerId: null,
                 readyTime: 30,
             })
 
 
             profile.cart = [] as any;
             profile.orders.push(currentOrder);
-            // await profile.save()
+
+            currentTransaction.vendorId = vendorId;
+            currentTransaction.orderId = orderId;
+            currentTransaction.status = 'CONFIRMED';
+
+            await currentTransaction.save();
 
             const profileSaveResponse = await profile.save()
             res.status(200).json(profileSaveResponse)
@@ -462,33 +531,6 @@ export const VerifyOffer = async (req: Request, res: Response, next: NextFunctio
     return res.status(400).json({ message: "Failed to get Offer!" });
 }
 
-export const CreatePayment = async (req: Request, res: Response, next: NextFunction) => {
-    const customer = req.user;
-
-    const {
-        amount,
-        paymentMode,
-        offerId
-    } = req.body;
-
-    let payableAmount = Number(amount);
-
-
-    if (offerId) {
-        const appliedOffer = await Offer.findById(offerId);
-
-        if (appliedOffer) {
-            if (appliedOffer.isActive) {
-                payableAmount = (payableAmount - appliedOffer.offerAmount)
-            }
-        }
-    }
-
-    //Perform Payment gateway Chrge API call
-
-
-    //create Record on Transaction
-}
 
 
 ///docker configuration needs to be done

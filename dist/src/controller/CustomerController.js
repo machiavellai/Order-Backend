@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VerifyOffer = exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.DeleteFromCart = exports.GetCart = exports.addToCart = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
+exports.CreatePayment = exports.VerifyOffer = exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.DeleteFromCart = exports.GetCart = exports.addToCart = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const Customer_dto_1 = require("../dto/Customer.dto");
@@ -18,6 +18,7 @@ const Customer_1 = require("../models/Customer");
 const models_1 = require("../models");
 const Order_1 = require("../models/Order");
 const Offer_1 = require("../models/Offer");
+const Transaction_1 = require("../models/Transaction");
 const CustomerSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const customerInputs = (0, class_transformer_1.plainToClass)(Customer_dto_1.CreateCustomerInpiuts, req.body);
     const inputErrors = yield (0, class_validator_1.validate)(customerInputs, { validationError: { target: true } });
@@ -345,4 +346,34 @@ const VerifyOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     return res.status(400).json({ message: "Failed to get Offer!" });
 });
 exports.VerifyOffer = VerifyOffer;
+const CreatePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    const { amount, paymentMode, offerId } = req.body;
+    let payableAmount = Number(amount);
+    if (offerId) {
+        const appliedOffer = yield Offer_1.Offer.findById(offerId);
+        if (appliedOffer) {
+            if (appliedOffer.isActive) {
+                payableAmount = (payableAmount - appliedOffer.offerAmount);
+            }
+        }
+    }
+    //Perform Payment gateway Chrge API call
+    //create Record on Transaction
+    const transaction = yield Transaction_1.Transaction.create({
+        customer: customer._id,
+        vendorId: '',
+        orderId: '',
+        orderValue: payableAmount,
+        offerUsed: offerId || 'NA',
+        status: 'OPEN',
+        paymentMode: paymentMode,
+        paymentResponse: 'Payment is on cash Delivery'
+    });
+    // return Transaction ID
+    return res.status(200).json(transaction);
+});
+exports.CreatePayment = CreatePayment;
+///docker configuration needs to be done
+/// also upload on the Personal social platforms
 //# sourceMappingURL=CustomerController.js.map
