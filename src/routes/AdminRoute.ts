@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { CreateVendor, GetVendor, GetVendorByID } from '../controller';
+import { CreateVendor, GetTransactions, GetTransactionsById, GetVendor, GetVendorByID } from '../controller';
 
 const router = express.Router();
 
@@ -8,6 +8,13 @@ router.post('/vendor', CreateVendor)
 router.get('/getvendors', GetVendor)
 
 router.get('/vendor/:id', GetVendorByID)
+
+
+/**-----------------Transactions ----------------------- */
+router.get('/transactions', GetTransactions)
+
+router.get('/transaction/:id', GetTransactionsById)
+
 
 
 router.get('/', (req: Request, res: Response, next: NextFunction) => {

@@ -35,17 +35,19 @@ const OrderSchema = new mongoose_1.Schema({
             unit: { type: Number, require: true }
         }
     ],
-    totalAmount: { type: Number, require: true },
+    totalAmount: {
+        type: Number,
+        require: true
+    },
+    paidAmount: {
+        type: Number,
+        require: true
+    },
     orderDate: { type: Date },
-    paidThrough: { type: String },
-    paymentResponse: { type: String },
     orderStatus: { type: String },
     remarks: { type: String },
-    // paidAmount: number;
     deliveryId: { type: String },
-    appliedOffers: { type: Boolean },
     readyTime: { type: Number }, //30 mins max
-    offerId: { type: String }
 }, {
     toJSON: {
         transform(doc, ret) {

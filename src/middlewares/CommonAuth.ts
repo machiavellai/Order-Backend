@@ -24,7 +24,7 @@ export const Authenticate = async (req: Request, res: Response, next: NextFuncti
     if (userPayload) {
 
         req.user = userPayload;
-        console.log('User from token:', req.user);
+        // console.log('User from token:', req.user);
         next()
     } else {
         return res.json({ "message": "user not Authorized " })

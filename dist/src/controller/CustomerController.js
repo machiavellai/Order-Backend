@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreatePayment = exports.VerifyOffer = exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.DeleteFromCart = exports.GetCart = exports.addToCart = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
+exports.VerifyOffer = exports.GetOrdersById = exports.GetOrders = exports.CreateOrder = exports.CreatePayment = exports.DeleteFromCart = exports.GetCart = exports.addToCart = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.VerifyCustomer = exports.CustomerLogin = exports.CustomerSignup = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const Customer_dto_1 = require("../dto/Customer.dto");
@@ -240,27 +240,78 @@ const DeleteFromCart = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     return res.status(400).json({ message: 'Cart is already empty!' });
 });
 exports.DeleteFromCart = DeleteFromCart;
-const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    //grab current login customer
+/**=--------------------Payment------------------------ */
+const CreatePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const customer = req.user;
+    const { amount, paymentMode, offerId } = req.body;
+    let payableAmount = Number(amount);
+    if (offerId) {
+        const appliedOffer = yield Offer_1.Offer.findById(offerId);
+        if (appliedOffer) {
+            if (appliedOffer.isActive) {
+                payableAmount = (payableAmount - appliedOffer.offerAmount);
+            }
+        }
+    }
+    //Perform Payment gateway Chrge API call
+    //create Record on Transaction
+    const transaction = yield Transaction_1.Transaction.create({
+        customer: customer._id,
+        vendorId: '',
+        orderId: '',
+        orderValue: payableAmount,
+        offerUsed: offerId || 'NA',
+        status: 'OPEN',
+        paymentMode: paymentMode,
+        paymentResponse: 'Payment is on cash Delivery'
+    });
+    // return Transaction ID
+    return res.status(200).json(transaction);
+});
+exports.CreatePayment = CreatePayment;
+/**----------------------------Delivery Notifications------------------ */
+const assignOrderForDelivery = (orderId, vendorId) => __awaiter(void 0, void 0, void 0, function* () {
+    //find the Vendor
+    //find the available delivery person
+    //check the nearest delivery person and assign the order
+});
+/**---------------------------Order Section ----------- */
+const validateTransaction = (txnId) => __awaiter(void 0, void 0, void 0, function* () {
+    const currentTransaction = yield Transaction_1.Transaction.findById(txnId);
+    if (currentTransaction) {
+        if (currentTransaction.status.toLowerCase() !== "failed") {
+            return { status: true, currentTransaction };
+        }
+    }
+    return { status: false, currentTransaction };
+});
+const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    //Order Construct Logic
+    const customer = req.user;
+    const { txnId, amount, items } = req.body;
     if (customer) {
-        // create an order ID
-        const orderId = `${Math.floor(Math.random() * 89999) + 1000}`;
+        //validate transaction
+        const { status, currentTransaction } = yield validateTransaction(txnId);
+        if (!status) {
+            return res.status(404).json({ message: 'Error woth the Create Order!' });
+        }
         const profile = yield Customer_1.Customer.findById(customer._id);
-        console.log('Customer Profile:', profile);
-        //Grab order items from request [ { id: XX, unit : XX}]
-        const cart = req.body; // [{id: XX, unit: XX}]
+        const orderId = `${Math.floor(Math.random() * 89999) + 1000}`;
         let cartItems = Array();
         let netAmount = 0.0;
         let vendorId;
+        console.log();
         //calculate order amount
-        const foods = yield models_1.Food.find().where('_id').in(cart.map(item => item._id)).exec();
+        const foods = yield models_1.Food.find().where('_id').in(items.map(item => item._id)).exec();
         foods.map(food => {
-            cart.map(({ _id, unit }) => {
+            items.map(({ _id, unit }) => {
                 if (food._id == _id) {
                     vendorId = food.vendorId;
                     netAmount += (food.price * unit);
-                    cartItems.push({ food, unit });
+                    cartItems.push({ food, unit: unit });
+                }
+                else {
+                    console.log(`${food._id} / ${_id}`);
                 }
             });
         });
@@ -272,19 +323,23 @@ const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 vendorId: vendorId,
                 items: cartItems,
                 totalAmount: netAmount,
+                paidAmount: amount,
                 orderDate: new Date(),
-                paidThrough: "MODE",
-                paymentResponse: "",
                 orderStatus: 'waiting',
                 remarks: '',
                 deliveryId: '',
-                appliedOffers: false,
-                offerId: null,
                 readyTime: 30,
             });
+            // console.log(orderId);
+            // console.log(vendorId);
+            // console.log(cartItems);
             profile.cart = [];
             profile.orders.push(currentOrder);
-            // await profile.save()
+            currentTransaction.vendorId = vendorId;
+            currentTransaction.orderId = orderId;
+            currentTransaction.status = 'CONFIRMED';
+            yield currentTransaction.save();
+            // assignOrderForDelivery(currentOrder._id, vendorId);
             const profileSaveResponse = yield profile.save();
             res.status(200).json(profileSaveResponse);
         }
@@ -302,13 +357,9 @@ const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     if (customer) {
         // create an order ID
         const profile = yield Customer_1.Customer.findById(customer._id).populate("orders");
-        // // Log the populated orders
-        // console.log('Order IDs:', profile.orders);
-        // console.log('Populated Orders:', profile.orders);
         if (profile) {
             // Manually query the Order model
             const orders = yield Order_1.Order.find({ _id: { $in: profile.orders } });
-            // console.log('Orders Found in DB:', orders);
             return res.status(200).json(profile.orders);
         }
     }
@@ -346,34 +397,6 @@ const VerifyOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     return res.status(400).json({ message: "Failed to get Offer!" });
 });
 exports.VerifyOffer = VerifyOffer;
-const CreatePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const customer = req.user;
-    const { amount, paymentMode, offerId } = req.body;
-    let payableAmount = Number(amount);
-    if (offerId) {
-        const appliedOffer = yield Offer_1.Offer.findById(offerId);
-        if (appliedOffer) {
-            if (appliedOffer.isActive) {
-                payableAmount = (payableAmount - appliedOffer.offerAmount);
-            }
-        }
-    }
-    //Perform Payment gateway Chrge API call
-    //create Record on Transaction
-    const transaction = yield Transaction_1.Transaction.create({
-        customer: customer._id,
-        vendorId: '',
-        orderId: '',
-        orderValue: payableAmount,
-        offerUsed: offerId || 'NA',
-        status: 'OPEN',
-        paymentMode: paymentMode,
-        paymentResponse: 'Payment is on cash Delivery'
-    });
-    // return Transaction ID
-    return res.status(200).json(transaction);
-});
-exports.CreatePayment = CreatePayment;
 ///docker configuration needs to be done
 /// also upload on the Personal social platforms
 //# sourceMappingURL=CustomerController.js.map

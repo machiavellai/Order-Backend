@@ -11,6 +11,9 @@ exports.AdminRoute = router;
 router.post('/vendor', controller_1.CreateVendor);
 router.get('/getvendors', controller_1.GetVendor);
 router.get('/vendor/:id', controller_1.GetVendorByID);
+/**-----------------Transactions ----------------------- */
+router.get('/transactions', controller_1.GetTransactions);
+router.get('/transaction/:id', controller_1.GetTransactionsById);
 router.get('/', (req, res, next) => {
     res.json({ message: "Hello from Vandor" });
 });

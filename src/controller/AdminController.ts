@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { CreateVendorInput } from '../dto'
 import { Vendor } from '../models';
 import { GeneratePassword, GenerateSalt } from '../utility';
+import { Transaction } from '../models/Transaction';
 
 //to check vendor by ID/Email id exsists
 export const FindVendor = async (id: string | undefined, email?: string) => {
@@ -15,16 +16,6 @@ export const FindVendor = async (id: string | undefined, email?: string) => {
 }
 
 
-
-// if (email) {
-//     return await Vendor.findOne({ email: email });
-// } else if (id) {
-//     return await Vendor.findById(id);  // Check that this is working as expected
-// }
-// return null;  // Return null if no valid ID or email
-
-
-
 export const CreateVendor = async (req: Request, res: Response, next: NextFunction) => {
 
     const { name, address, pincode, foodType, email, password, ownerName, phone } = <CreateVendorInput>req.body;
@@ -34,10 +25,10 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
     if (existingVendor !== null) {
         return res.json({ "message": "A vendor is already with this email ID" })
     }
-
     //generate salt
 
-    const salt = await GenerateSalt()
+    const salt = await GenerateSalt();
+    
     const userPassword = await GeneratePassword(password, salt);
     //encrypt the password usign the salt
 
@@ -75,7 +66,7 @@ export const GetVendor = async (req: Request, res: Response, next: NextFunction)
     }
 
     return res.json({ "message": " vendors data are not available" })
-    
+
 }
 
 
@@ -96,3 +87,29 @@ export const GetVendorByID = async (req: Request, res: Response, next: NextFunct
     })
 }
 
+export const GetTransactions = async (req: Request, res: Response, next: NextFunction) => {
+
+    const transactions = await Transaction.find();
+
+    if (transactions) {
+        return res.status(200).json(transactions)
+    }
+
+    return res.json({ message: "Transactions not available!" })
+
+}
+
+export const GetTransactionsById = async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const id = req.params.id;
+
+    const transaction = await Transaction.findById(id);
+
+    if (transaction) {
+        return res.status(200).json(transaction)
+    }
+
+    return res.json({ message: "Transaction not available!" })
+
+}

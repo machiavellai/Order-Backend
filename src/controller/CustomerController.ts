@@ -366,6 +366,24 @@ export const CreatePayment = async (req: Request, res: Response, next: NextFunct
 
 }
 
+
+/**----------------------------Delivery Notifications------------------ */
+
+const assignOrderForDelivery = async (orderId: string, vendorId: string) => {
+
+
+    //find the Vendor
+
+    
+
+    //find the available delivery person
+
+    //check the nearest delivery person and assign the order
+
+
+
+}
+
 /**---------------------------Order Section ----------- */
 
 const validateTransaction = async (txnId: string) => {
@@ -405,7 +423,9 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
 
         let netAmount = 0.0;
 
-        let vendorId: any;
+        let vendorId;
+        console.log();
+
         //calculate order amount
 
         const foods = await Food.find().where('_id').in(items.map(item => item._id)).exec()
@@ -437,6 +457,10 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
                 readyTime: 30,
             })
 
+            // console.log(orderId);
+            // console.log(vendorId);
+            // console.log(cartItems);
+
 
             profile.cart = [] as any;
             profile.orders.push(currentOrder);
@@ -447,7 +471,10 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
 
             await currentTransaction.save();
 
+            assignOrderForDelivery(currentOrder._id as string, vendorId);
+
             const profileSaveResponse = await profile.save()
+
             res.status(200).json(profileSaveResponse)
 
         } else {
@@ -473,17 +500,11 @@ export const GetOrders = async (req: Request, res: Response, next: NextFunction)
         // create an order ID
         const profile = await Customer.findById(customer._id).populate("orders");
 
-        // // Log the populated orders
-        // console.log('Order IDs:', profile.orders);
-
-        // console.log('Populated Orders:', profile.orders);
 
         if (profile) {
 
             // Manually query the Order model
             const orders = await Order.find({ _id: { $in: profile.orders } });
-
-            // console.log('Orders Found in DB:', orders);
 
             return res.status(200).json(profile.orders);
         }

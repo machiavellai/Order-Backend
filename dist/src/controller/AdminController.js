@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetVendorByID = exports.GetVendor = exports.CreateVendor = exports.FindVendor = void 0;
+exports.GetTransactionsById = exports.GetTransactions = exports.GetVendorByID = exports.GetVendor = exports.CreateVendor = exports.FindVendor = void 0;
 const models_1 = require("../models");
 const utility_1 = require("../utility");
+const Transaction_1 = require("../models/Transaction");
 //to check vendor by ID/Email id exsists
 const FindVendor = (id, email) => __awaiter(void 0, void 0, void 0, function* () {
     if (email) {
@@ -23,12 +24,6 @@ const FindVendor = (id, email) => __awaiter(void 0, void 0, void 0, function* ()
     return null;
 });
 exports.FindVendor = FindVendor;
-// if (email) {
-//     return await Vendor.findOne({ email: email });
-// } else if (id) {
-//     return await Vendor.findById(id);  // Check that this is working as expected
-// }
-// return null;  // Return null if no valid ID or email
 const CreateVendor = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, address, pincode, foodType, email, password, ownerName, phone } = req.body;
     const existingVendor = yield (0, exports.FindVendor)('', email);
@@ -79,4 +74,21 @@ const GetVendorByID = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     });
 });
 exports.GetVendorByID = GetVendorByID;
+const GetTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const transactions = yield Transaction_1.Transaction.find();
+    if (transactions) {
+        return res.status(200).json(transactions);
+    }
+    return res.json({ message: "Transactions not available!" });
+});
+exports.GetTransactions = GetTransactions;
+const GetTransactionsById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const transaction = yield Transaction_1.Transaction.findById(id);
+    if (transaction) {
+        return res.status(200).json(transaction);
+    }
+    return res.json({ message: "Transaction not available!" });
+});
+exports.GetTransactionsById = GetTransactionsById;
 //# sourceMappingURL=AdminController.js.map
